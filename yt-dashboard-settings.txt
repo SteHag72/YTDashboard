@@ -1,3 +1,0 @@
-Einstellungen 09062026:
-
-{"apiKey":"AIzaSyDejJbF9-Aq_OksZtRrDVSbXvjhKy1ONtE","channels":["https://www.youtube.com/@ThomasGastLegion","https://www.youtube.com/@Vermietertagebuch","https://www.youtube.com/@NeutralityStudiesDE","https://www.youtube.com/@nachdenkseiten745","https://www.youtube.com/@balthasarbecker","https://www.youtube.com/@axinocapital","https://www.youtube.com/@Cashkurscom","https://www.youtube.com/@realunitschweiz","https://www.youtube.com/@GDiesenDE","https://www.youtube.com/@StHomburg"],"vpc":3}
