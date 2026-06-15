@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0f0f0;
+    --muted: #888;
+    --hint: #555;
+    --red: #ff3b3b;
+    --red-bg: rgba(255,59,59,0.12);
+    --green: #34d399;
+    --green-bg: rgba(52,211,153,0.1);
+    --accent: #ff0000;
+    --accent-soft: rgba(255,0,0,0.08);
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-icon {
+    width: 28px; height: 20px;
+    background: var(--accent);
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-icon::after {
+    content: '';
+    border-left: 9px solid white;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    margin-left: 2px;
+  }
+  .logo-text { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+  .header-actions { display: flex; gap: 8px; }
+  .icon-btn {
+    width: 36px; height: 36px;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    transition: all 0.15s;
+  }
+  .icon-btn:hover { color: var(--text); border-color: var(--border2); background: var(--surface2); }
+  .icon-btn.active { color: var(--text); background: var(--surface2); }
+
+  /* MAIN */
+  main { max-width: 960px; margin: 0 auto; padding: 20px 16px 80px; }
+
+  /* SETTINGS PANEL */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .panel-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 14px;
+  }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .field input[type="text"],
+  .field input[type="password"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field input:focus { border-color: rgba(255,255,255,0.3); }
+  .ch-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  @media (max-width: 480px) { .ch-row { grid-template-columns: 1fr; } }
+  .ch-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+  }
+  .ch-num {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--hint);
+    min-width: 18px;
+  }
+  .ch-input-wrap input {
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    width: 100%;
+  }
+  .ch-input-wrap input::placeholder { color: var(--hint); }
+  .save-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .save-btn:hover { opacity: 0.85; }
+  .save-btn:disabled { opacity: 0.4; cursor: default; }
+  .hint-text {
+    font-size: 12px;
+    color: var(--hint);
+    line-height: 1.6;
+    margin-top: 10px;
+  }
+  .hint-text a { color: var(--muted); }
+  .msg { font-size: 13px; margin-top: 8px; padding: 8px 12px; border-radius: var(--radius-sm); display: none; }
+  .msg.error { background: var(--red-bg); color: var(--red); display: block; }
+  .msg.success { background: var(--green-bg); color: var(--green); display: block; }
+
+  /* DASHBOARD */
+  .dash-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .fetch-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 10px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: opacity 0.15s;
+  }
+  .fetch-btn:hover { opacity: 0.85; }
+  .fetch-btn:disabled { opacity: 0.45; cursor: default; }
+  .spin { animation: spin 0.8s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* WATCHED STAMP */
+  .video-card.watched { opacity: 0.55; }
+  .video-card.watched .thumb-wrap img { filter: grayscale(60%); }
+  .stamp {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 22px;
+    font-weight: 800;
+    color: rgba(180,180,180,0.82);
+    letter-spacing: 0.04em;
+    pointer-events: none;
+    white-space: nowrap;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    border: 3px solid rgba(180,180,180,0.55);
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.18);
+    user-select: none;
+  }
+  .watch-toggle {
+    position: absolute;
+    bottom: 6px; right: 6px;
+    background: rgba(0,0,0,0.65);
+    border: none;
+    border-radius: 4px;
+    color: #ccc;
+    font-size: 11px;
+    padding: 3px 7px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 2;
+  }
+  .video-card:hover .watch-toggle { opacity: 1; }
+  .video-card.watched .watch-toggle { opacity: 0.7; color: var(--green); }
+  .sort-select {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    cursor: pointer;
+    margin-left: auto;
+  }
+  .status-bar {
+    font-size: 12px;
+    color: var(--hint);
+    margin-bottom: 16px;
+    min-height: 18px;
+  }
+  .progress-wrap {
+    background: var(--surface);
+    border-radius: 4px;
+    height: 3px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    display: none;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+    transition: width 0.3s;
+  }
+
+  /* VIDEO GRID */
+  .videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  @media (max-width: 600px) { .videos-grid { grid-template-columns: 1fr; } }
+  .video-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.15s, transform 0.15s;
+    cursor: pointer;
+  }
+  .video-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .thumb-wrap {
+    position: relative;
+    aspect-ratio: 16/9;
+    background: var(--surface2);
+    overflow: hidden;
+  }
+  .thumb-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--hint);
+    font-size: 32px;
+  }
+  .new-badge {
+    position: absolute;
+    top: 8px; left: 8px;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+  .card-body { padding: 12px 14px; }
+  .ch-name {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .vid-title {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--text);
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .vid-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--hint);
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--hint);
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; line-height: 1.6; }
+
+  /* CHANNEL NAME CHIP */
+  .ch-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2px 8px 2px 4px;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .ch-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+  /* TOGGLE SWITCH */
+  .toggle-wrap { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .toggle-label { font-size: 13px; color: var(--text); }
+  .toggle { position: relative; width: 40px; height: 22px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 22px;
+    transition: 0.2s;
+  }
+  .slider:before {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    left: 3px; bottom: 3px;
+    background: var(--hint);
+    border-radius: 50%;
+    transition: 0.2s;
+  }
+  input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+  input:checked + .slider:before { transform: translateX(18px); background: white; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon"></div>
+    <span class="logo-text">YT Dashboard</span>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="btn-dash" onclick="showView('dash')" title="Dashboard">▶</button>
+    <button class="icon-btn" id="btn-settings" onclick="showView('settings')" title="Einstellungen">⚙</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- SETTINGS VIEW -->
+  <div id="view-settings" style="display:none;">
+    <div class="panel">
+      <div class="panel-title">API-Schlüssel</div>
+      <div class="field">
+        <label>YouTube Data API v3 Key</label>
+        <input type="password" id="api-key-input" placeholder="AIzaSy..." autocomplete="off" />
+      </div>
+      <button class="save-btn" onclick="saveKey()">Schlüssel speichern</button>
+      <div class="msg" id="key-msg"></div>
+      <p class="hint-text">
+        Kostenlosen API-Key erstellen auf
+        <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a>
+        → YouTube Data API v3 aktivieren → Anmeldedaten → API-Schlüssel.
+        10.000 Units/Tag dauerhaft gratis.
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Kanäle (bis zu 20)</div>
+      <p class="hint-text" style="margin-bottom: 14px;">
+        YouTube-Kanal-Link oder Kanal-ID einfügen. Beispiele:<br>
+        <code style="font-size:11px; font-family:'DM Mono',monospace; color:var(--muted);">
+          https://www.youtube.com/@MrBeast<br>
+          https://www.youtube.com/channel/UCxxxxxx<br>
+          UCxxxxxx...
+        </code>
+      </p>
+      <div id="channel-inputs"></div>
+      <button class="save-btn" onclick="saveChannels()" style="margin-top: 4px;">Kanäle speichern</button>
+      <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
+        <button class="save-btn" onclick="exportSettings()" style="background:var(--surface2); border:1px solid var(--border2); color:var(--text); font-size:13px; padding:8px 14px;">&#8595; Einstellungen kopieren</button>
+        <button class="save-btn" onclick="toggleImport()" style="background:var(--surface2); border:1px solid var(--border2); color:var(--text); font-size:13px; padding:8px 14px;">&#8593; Einstellungen einfügen</button>
+      </div>
+      <div id="export-box" style="display:none; margin-top:12px;">
+        <p style="font-size:12px; color:var(--muted); margin-bottom:6px;">Alles markieren, kopieren und per WhatsApp/Mail ans andere Gerät schicken:</p>
+        <textarea id="export-text" rows="4" style="width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:var(--radius-sm); color:var(--text); font-family:'DM Mono',monospace; font-size:11px; padding:10px; outline:none; resize:vertical;" readonly onclick="this.select()"></textarea>
+        <button class="save-btn" onclick="copyExport()" style="margin-top:6px; font-size:13px; padding:8px 14px;">Kopieren &#10003;</button>
+      </div>
+      <div id="import-box" style="display:none; margin-top:12px;">
+        <p style="font-size:12px; color:var(--muted); margin-bottom:6px;">Kopierten Text hier einfügen und Importieren klicken:</p>
+        <textarea id="import-text" rows="4" style="width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:var(--radius-sm); color:var(--text); font-family:'DM Mono',monospace; font-size:11px; padding:10px; outline:none; resize:vertical;" placeholder='{"apiKey":"...","channels":["..."]}' ></textarea>
+        <button class="save-btn" onclick="importSettings()" style="margin-top:6px; font-size:13px; padding:8px 14px;">Importieren</button>
+      </div>
+      <div class="msg" id="ch-msg"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Optionen</div>
+      <div class="toggle-wrap">
+        <span class="toggle-label">Videos pro Kanal: <strong id="vpc-label">3</strong></span>
+        <input type="range" min="1" max="5" value="3" id="vpc-range"
+          style="width:100px;"
+          oninput="document.getElementById('vpc-label').textContent=this.value; localStorage.setItem('yt_vpc',this.value);">
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD VIEW -->
+  <div id="view-dash">
+    <div class="dash-controls">
+      <button class="fetch-btn" id="fetch-btn" onclick="fetchAll()">
+        <span id="fetch-icon">▶</span> Abrufen
+      </button>
+      <select class="sort-select" id="sort-select" onchange="renderVideos()">
+        <option value="date">Neueste zuerst</option>
+        <option value="channel">Nach Kanal</option>
+        <option value="views">Meiste Aufrufe</option>
+      </select>
+      <button onclick="runDiagnose()" title="Diagnose" style="margin-left:auto; background:var(--surface2); border:1px solid var(--border2); border-radius:var(--radius-sm); color:var(--muted); font-size:12px; padding:7px 12px; cursor:pointer;">🔧 Diagnose</button>
+    </div>
+    <div class="progress-wrap" id="progress-wrap">
+      <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+    </div>
+    <div class="status-bar" id="status-bar">Kanäle in den Einstellungen hinterlegen, dann „Abrufen" klicken.</div>
+    <div id="error-panel" style="display:none; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:16px; font-size:12px;"></div>
+    <div id="diagnose-panel" style="display:none; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:16px; font-size:12px; line-height:1.8;"></div>
+    <div id="videos-container"></div>
+  </div>
+
+</main>
+
+<script>
+// ---------- STATE ----------
+const S = {
+  get apiKey()  { return localStorage.getItem('yt_key') || ''; },
+  get channels(){ return JSON.parse(localStorage.getItem('yt_channels') || '[]'); },
+  get videos()  { return JSON.parse(localStorage.getItem('yt_videos') || '[]'); },
+  get fetchTime(){ return localStorage.getItem('yt_fetchtime') || ''; },
+  get vpc()     { return parseInt(localStorage.getItem('yt_vpc') || '3'); },
+};
+
+// ---------- INIT ----------
+// Clear old cache once on this version load
+(function purgeLegacyCache() {
+  localStorage.removeItem('yt_channel_cache');
+})();
+
+(function init() {
+  buildChannelInputs();
+  const vpcR = document.getElementById('vpc-range');
+  vpcR.value = S.vpc;
+  document.getElementById('vpc-label').textContent = S.vpc;
+
+  if (S.videos.length) {
+    renderVideos();
+    if (S.fetchTime) document.getElementById('status-bar').textContent = 'Zuletzt abgerufen: ' + S.fetchTime;
+  }
+  showView('dash');
+})();
+
+// ---------- VIEWS ----------
+function showView(v) {
+  document.getElementById('view-dash').style.display     = v === 'dash'     ? '' : 'none';
+  document.getElementById('view-settings').style.display = v === 'settings' ? '' : 'none';
+  document.getElementById('btn-dash').classList.toggle('active', v === 'dash');
+  document.getElementById('btn-settings').classList.toggle('active', v === 'settings');
+}
+
+// ---------- CHANNEL INPUTS ----------
+function buildChannelInputs() {
+  const stored = S.channels;
+  const wrap = document.getElementById('channel-inputs');
+  let html = '<div class="ch-row">';
+  for (let i = 0; i < 20; i++) {
+    if (i > 0 && i % 2 === 0) html += '</div><div class="ch-row">';
+    html += `<div class="ch-input-wrap">
+      <span class="ch-num">${String(i+1).padStart(2,'0')}</span>
+      <input type="text" id="ch-${i}" placeholder="Link oder Kanal-ID" value="${stored[i] || ''}" />
+    </div>`;
+  }
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+// ---------- EXTRACT CHANNEL ID FROM URL ----------
+function extractChannelId(raw) {
+  raw = raw.trim();
+  // Already a channel ID
+  if (/^UC[\w-]{22}$/.test(raw)) return { type: 'id', value: raw };
+  // /channel/UCxxxxx
+  const chMatch = raw.match(/youtube\.com\/channel\/(UC[\w-]{22})/);
+  if (chMatch) return { type: 'id', value: chMatch[1] };
+  // @handle or /c/handle or /user/handle
+  const handleMatch = raw.match(/youtube\.com\/(?:@|c\/|user\/)([^/?&]+)/);
+  if (handleMatch) return { type: 'handle', value: handleMatch[1] };
+  // bare @handle
+  if (raw.startsWith('@')) return { type: 'handle', value: raw.slice(1) };
+  // fallback treat as handle
+  if (raw && !raw.includes('youtube.com')) return { type: 'handle', value: raw };
+  return null;
+}
+
+// ---------- RESOLVE HANDLE TO CHANNEL ID ----------
+async function resolveHandle(apiKey, handle) {
+  const url = `https://www.googleapis.com/youtube/v3/channels?key=${apiKey}&forHandle=${encodeURIComponent(handle)}&part=id,snippet`;
+  const r = await fetch(url);
+  if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message || r.status); }
+  const data = await r.json();
+  if (data.items && data.items.length) return { id: data.items[0].id, name: data.items[0].snippet.title };
+  throw new Error(`Kanal "@${handle}" nicht gefunden.`);
+}
+
+// ---------- SAVE KEY ----------
+function saveKey() {
+  const k = document.getElementById('api-key-input').value.trim();
+  const msgEl = document.getElementById('key-msg');
+  if (!k) { showMsg(msgEl, 'error', 'Bitte einen API-Key eingeben.'); return; }
+  localStorage.setItem('yt_key', k);
+  document.getElementById('api-key-input').value = '';
+  showMsg(msgEl, 'success', 'API-Key gespeichert ✓');
+}
+
+// ---------- SAVE CHANNELS ----------
+function saveChannels() {
+  const chs = [];
+  for (let i = 0; i < 20; i++) chs.push(document.getElementById('ch-' + i).value.trim());
+  const msgEl = document.getElementById('ch-msg');
+  if (chs.every(c => !c)) { showMsg(msgEl, 'error', 'Mindestens einen Kanal eintragen.'); return; }
+  localStorage.setItem('yt_channels', JSON.stringify(chs));
+  showMsg(msgEl, 'success', chs.filter(Boolean).length + ' Kanal(e) gespeichert ✓ (max. 20)');
+}
+
+// ---------- FETCH ALL ----------
+async function fetchAll() {
+  if (!S.apiKey) { alert('Bitte zuerst den API-Key in den Einstellungen hinterlegen.'); showView('settings'); return; }
+  const rawChs = S.channels.filter(c => c && c.trim());
+  if (!rawChs.length) { alert('Bitte Kanäle in den Einstellungen eintragen.'); showView('settings'); return; }
+
+  const btn = document.getElementById('fetch-btn');
+  const iconEl = document.getElementById('fetch-icon');
+  const statusEl = document.getElementById('status-bar');
+  const progressWrap = document.getElementById('progress-wrap');
+  const progressBar = document.getElementById('progress-bar');
+
+  btn.disabled = true;
+  iconEl.innerHTML = '<span class="spin">↻</span>';
+  progressWrap.style.display = 'block';
+  progressBar.style.width = '0%';
+  document.getElementById('error-panel').style.display = 'none';
+
+  // Load cached channel IDs (avoid re-resolving every time = saves API units)
+  let channelCache = JSON.parse(localStorage.getItem('yt_channel_cache') || '{}');
+
+  // Resolve channels
+  const resolved = [];
+  const errors = [];
+  for (let i = 0; i < rawChs.length; i++) {
+    const raw = rawChs[i];
+    const parsed = extractChannelId(raw);
+    statusEl.textContent = `Löse Kanal ${i+1}/${rawChs.length} auf...`;
+    progressBar.style.width = Math.round((i / rawChs.length) * 30) + '%';
+    try {
+      if (!parsed) { errors.push({ raw, msg: 'Ungültige URL oder ID' }); continue; }
+
+      // Use cache if available
+      const cacheKey = parsed.value;
+      if (channelCache[cacheKey]) {
+        resolved.push(channelCache[cacheKey]);
+        continue;
+      }
+
+      let info;
+      if (parsed.type === 'id') {
+        info = await getChannelInfo(S.apiKey, parsed.value);
+        info.id = parsed.value;
+      } else {
+        info = await resolveHandle(S.apiKey, parsed.value);
+      }
+      channelCache[cacheKey] = { id: info.id, name: info.name };
+      resolved.push(channelCache[cacheKey]);
+    } catch(e) {
+      errors.push({ raw, msg: e.message });
+    }
+  }
+
+  // Save updated cache
+  localStorage.setItem('yt_channel_cache', JSON.stringify(channelCache));
+
+  if (!resolved.length) {
+    statusEl.textContent = '⚠ Keine gültigen Kanäle gefunden.';
+    showErrors(errors);
+    btn.disabled = false; iconEl.textContent = '▶';
+    progressWrap.style.display = 'none';
+    return;
+  }
+
+  // Fetch videos
+  let allVideos = [];
+  for (let i = 0; i < resolved.length; i++) {
+    const ch = resolved[i];
+    statusEl.textContent = `Lade Videos: ${ch.name} (${i+1}/${resolved.length})...`;
+    progressBar.style.width = Math.round(30 + (i / resolved.length) * 55) + '%';
+    try {
+      const items = await fetchChannelVideos(S.apiKey, ch.id, S.vpc);
+      if (items.length === 0) {
+        errors.push({ raw: ch.name, msg: 'Keine Videos gefunden (evtl. privat oder leer)' });
+      }
+      items.forEach(item => {
+        allVideos.push({
+          id: item.id.videoId,
+          title: item.snippet.title,
+          channel: ch.name,
+          channelId: ch.id,
+          publishedAt: item.snippet.publishedAt,
+          thumb: item.snippet.thumbnails?.medium?.url || ''
+        });
+      });
+    } catch(e) {
+      errors.push({ raw: ch.name, msg: e.message });
+    }
+  }
+
+  // Fetch stats
+  if (allVideos.length) {
+    progressBar.style.width = '90%';
+    statusEl.textContent = 'Lade Statistiken...';
+    const ids = allVideos.map(v => v.id).filter(Boolean);
+    const stats = await fetchVideoStats(S.apiKey, ids);
+    allVideos.forEach(v => { v.views = stats[v.id]?.viewCount || 0; });
+  }
+
+  progressBar.style.width = '100%';
+  setTimeout(() => { progressWrap.style.display = 'none'; }, 500);
+
+  const now = new Date().toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  localStorage.setItem('yt_videos', JSON.stringify(allVideos));
+  localStorage.setItem('yt_fetchtime', now);
+
+  const okCount = resolved.length - errors.filter(e => resolved.find(r => r.name === e.raw)).length;
+  let statusText = `${allVideos.length} Videos · ${resolved.length} von ${rawChs.length} Kanälen geladen · ${now}`;
+  if (errors.length) statusText += ` · ⚠ ${errors.length} Problem(e)`;
+  statusEl.textContent = statusText;
+
+  if (errors.length) showErrors(errors);
+
+  btn.disabled = false;
+  iconEl.textContent = '▶';
+  renderVideos();
+}
+
+// ---------- SHOW ERRORS ----------
+function showErrors(errors) {
+  if (!errors.length) return;
+  const panel = document.getElementById('error-panel');
+  panel.style.display = 'block';
+  panel.innerHTML = `<div style="font-size:12px; color:var(--hint); margin-bottom:6px;">⚠ Probleme beim Laden (${errors.length}):</div>` +
+    errors.map(e => `<div style="font-size:12px; padding:4px 0; border-bottom:1px solid var(--border); color:var(--muted);">
+      <span style="color:var(--red)">✕</span> <strong style="color:var(--text)">${escHtml(e.raw)}</strong>
+      <span style="color:var(--hint); margin-left:6px;">${escHtml(e.msg)}</span>
+    </div>`).join('') +
+    `<button onclick="clearChannelCache()" style="margin-top:8px; font-size:11px; background:var(--surface2); border:1px solid var(--border2); border-radius:4px; color:var(--muted); padding:4px 10px; cursor:pointer;">
+      🔄 Kanal-Cache löschen &amp; neu auflösen
+    </button>`;
+}
+
+function clearChannelCache() {
+  localStorage.removeItem('yt_channel_cache');
+  const ep = document.getElementById('error-panel');
+  if(ep) ep.style.display = 'none';
+  fetchAll();
+}
+
+// ---------- DIAGNOSE ----------
+function runDiagnose() {
+  const panel = document.getElementById('diagnose-panel');
+  panel.style.display = panel.style.display === 'none' ? '' : 'none';
+  if (panel.style.display === 'none') return;
+
+  const channels = S.channels.filter(c => c && c.trim());
+  const cache    = JSON.parse(localStorage.getItem('yt_channel_cache') || '{}');
+  const videos   = S.videos;
+  const watched  = getWatched();
+  const vpc      = S.vpc;
+  const apiKey   = S.apiKey ? '✓ vorhanden' : '✗ fehlt!';
+
+  const chRows = channels.map((raw, i) => {
+    const parsed = extractChannelId(raw);
+    const cacheKey = parsed?.value || '';
+    const cached = cache[cacheKey];
+    const vidsForCh = cached ? videos.filter(v => v.channelId === cached.id) : [];
+    let status = '';
+    if (!parsed)          status = '<span style="color:var(--red)">✗ Ungültige URL</span>';
+    else if (!cached)     status = '<span style="color:var(--muted)">⏳ Noch nicht aufgelöst</span>';
+    else if (!vidsForCh.length) status = '<span style="color:var(--red)">✗ 0 Videos geladen</span>';
+    else                  status = `<span style="color:var(--green)">✓ ${vidsForCh.length} Video(s)</span>`;
+    const name = cached?.name || raw.substring(0, 40);
+    return `<tr>
+      <td style="color:var(--hint);padding-right:10px">${i+1}</td>
+      <td style="color:var(--text);padding-right:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(name)}</td>
+      <td>${status}</td>
+    </tr>`;
+  }).join('');
+
+  panel.innerHTML = `
+    <div style="font-weight:600; color:var(--text); margin-bottom:10px; font-size:13px;">🔧 Diagnose</div>
+    <table style="width:100%; border-collapse:collapse; margin-bottom:12px">${chRows}</table>
+    <div style="color:var(--muted); border-top:1px solid var(--border); padding-top:10px; display:flex; flex-wrap:wrap; gap:16px;">
+      <span>API-Key: <strong style="color:var(--text)">${apiKey}</strong></span>
+      <span>Videos gesamt: <strong style="color:var(--text)">${videos.length}</strong></span>
+      <span>Videos pro Kanal: <strong style="color:var(--text)">${vpc}</strong></span>
+      <span>Angeschaut: <strong style="color:var(--text)">${watched.size}</strong></span>
+      <span>Cache: <strong style="color:var(--text)">${Object.keys(cache).length} Einträge</strong></span>
+    </div>
+    <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap">
+      <button onclick="clearChannelCache()" style="font-size:11px; background:var(--surface2); border:1px solid var(--border2); border-radius:4px; color:var(--muted); padding:5px 12px; cursor:pointer;">🔄 Cache leeren &amp; neu laden</button>
+      <button onclick="resetWatched()" style="font-size:11px; background:var(--surface2); border:1px solid var(--border2); border-radius:4px; color:var(--muted); padding:5px 12px; cursor:pointer;">🗑 Angeschaut-Markierungen löschen</button>
+    </div>`;
+}
+
+// ---------- API CALLS ----------
+async function getChannelInfo(apiKey, channelId) {
+  const url = `https://www.googleapis.com/youtube/v3/channels?key=${apiKey}&id=${channelId}&part=snippet`;
+  const r = await fetch(url);
+  if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message || r.status); }
+  const data = await r.json();
+  if (data.items && data.items.length) return { id: channelId, name: data.items[0].snippet.title };
+  throw new Error(`Kanal-ID nicht gefunden: ${channelId}. Bitte URL in den Einstellungen prüfen.`);
+}
+
+async function fetchChannelVideos(apiKey, channelId, maxResults) {
+  const url = `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet&order=date&maxResults=${maxResults}&type=video`;
+  const r = await fetch(url);
+  if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message || r.status); }
+  const data = await r.json();
+  return data.items || [];
+}
+
+async function fetchVideoStats(apiKey, videoIds) {
+  if (!videoIds.length) return {};
+  const url = `https://www.googleapis.com/youtube/v3/videos?key=${apiKey}&id=${videoIds.join(',')}&part=statistics`;
+  const r = await fetch(url);
+  if (!r.ok) return {};
+  const data = await r.json();
+  const map = {};
+  (data.items || []).forEach(v => map[v.id] = v.statistics);
+  return map;
+}
+
+// ---------- RENDER ----------
+function renderVideos() {
+  const sort = document.getElementById('sort-select').value;
+  let vids = JSON.parse(localStorage.getItem('yt_videos') || '[]');
+  const watched = getWatched();
+
+  if (sort === 'date') vids.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+  else if (sort === 'channel') vids.sort((a, b) => a.channel.localeCompare(b.channel));
+  else if (sort === 'views') vids.sort((a, b) => b.views - a.views);
+  // Always push watched to bottom
+  vids.sort((a, b) => (watched.has(a.id) ? 1 : 0) - (watched.has(b.id) ? 1 : 0));
+
+  const wrap = document.getElementById('videos-container');
+  if (!vids.length) {
+    wrap.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">▶</div>
+      <p>Noch keine Videos geladen.<br>Kanäle in den Einstellungen hinterlegen und „Abrufen" klicken.</p>
+    </div>`;
+    return;
+  }
+
+  wrap.innerHTML = '<div class="videos-grid">' + vids.map(v => {
+    const isWatched = watched.has(v.id);
+    return `
+    <div class="video-card${isWatched ? ' watched' : ''}" id="vc-${v.id}">
+      <div class="thumb-wrap" onclick="openVideo('${v.id}', '${escHtml(v.id)}')">
+        ${v.thumb ? `<img src="${v.thumb}" alt="" loading="lazy">` : `<div class="thumb-placeholder">▶</div>`}
+        ${isNew(v.publishedAt) && !isWatched ? '<span class="new-badge">NEU</span>' : ''}
+        ${isWatched ? '<div class="stamp">Angeschaut</div>' : ''}
+        <button class="watch-toggle" onclick="event.stopPropagation(); toggleWatched('${v.id}')">${isWatched ? '✕ Markierung entfernen' : '✓ Als angeschaut markieren'}</button>
+      </div>
+      <div class="card-body">
+        <div class="ch-name">
+          <span class="ch-chip"><span class="ch-dot"></span>${escHtml(v.channel)}</span>
+        </div>
+        <div class="vid-title">${escHtml(v.title)}</div>
+        <div class="vid-meta">
+          <span>🕐 ${timeAgo(v.publishedAt)}</span>
+          ${v.views ? `<span>👁 ${fmtViews(v.views)}</span>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+// ---------- WATCHED ----------
+function getWatched() {
+  return new Set(JSON.parse(localStorage.getItem('yt_watched') || '[]'));
+}
+
+function toggleWatched(id) {
+  const w = getWatched();
+  if (w.has(id)) { w.delete(id); } else { w.add(id); }
+  localStorage.setItem('yt_watched', JSON.stringify([...w]));
+  renderVideos();
+}
+
+// ---------- HELPERS ----------
+function openVideo(id) {
+  if (id) {
+    // Mark as watched when opening
+    const w = getWatched();
+    w.add(id);
+    localStorage.setItem('yt_watched', JSON.stringify([...w]));
+    window.open('https://www.youtube.com/watch?v=' + id, '_blank');
+    renderVideos();
+  }
+}
+
+function isNew(iso) {
+  return (new Date() - new Date(iso)) < 86400 * 1000;
+}
+
+function timeAgo(iso) {
+  const diff = Math.floor((new Date() - new Date(iso)) / 1000);
+  if (diff < 3600) return Math.floor(diff / 60) + ' Min.';
+  if (diff < 86400) return Math.floor(diff / 3600) + ' Std.';
+  if (diff < 604800) return Math.floor(diff / 86400) + ' Tagen';
+  return new Date(iso).toLocaleDateString('de-DE', { day: '2-digit', month: 'short' });
+}
+
+function fmtViews(n) {
+  const num = parseInt(n);
+  if (num > 1e6) return (num / 1e6).toFixed(1) + 'M';
+  if (num > 1e3) return Math.round(num / 1e3) + 'K';
+  return num.toString();
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function exportSettings() {
+  const data = { apiKey: S.apiKey, channels: S.channels, vpc: S.vpc };
+  const json = JSON.stringify(data);
+  const box = document.getElementById('export-box');
+  const importBox = document.getElementById('import-box');
+  importBox.style.display = 'none';
+  box.style.display = box.style.display === 'none' ? '' : 'none';
+  if (box.style.display !== 'none') {
+    document.getElementById('export-text').value = json;
+  }
+}
+
+function copyExport() {
+  const ta = document.getElementById('export-text');
+  ta.select();
+  try {
+    navigator.clipboard.writeText(ta.value).then(() => alert('Kopiert! ✓ Jetzt per WhatsApp/Mail ans andere Gerät schicken.'));
+  } catch(e) {
+    document.execCommand('copy');
+    alert('Kopiert! ✓');
+  }
+}
+
+function toggleImport() {
+  const box = document.getElementById('import-box');
+  const exportBox = document.getElementById('export-box');
+  exportBox.style.display = 'none';
+  box.style.display = box.style.display === 'none' ? '' : 'none';
+}
+
+function importSettings() {
+  const text = document.getElementById('import-text').value.trim();
+  if (!text) { alert('Bitte zuerst den kopierten Text einfügen.'); return; }
+  try {
+    const data = JSON.parse(text);
+    if (data.apiKey) localStorage.setItem('yt_key', data.apiKey);
+    if (data.channels) localStorage.setItem('yt_channels', JSON.stringify(data.channels));
+    if (data.vpc) localStorage.setItem('yt_vpc', data.vpc);
+    buildChannelInputs();
+    document.getElementById('vpc-range').value = S.vpc;
+    document.getElementById('vpc-label').textContent = S.vpc;
+    document.getElementById('import-box').style.display = 'none';
+    document.getElementById('import-text').value = '';
+    alert('Einstellungen importiert ✓ – API-Key und Kanäle wurden geladen.');
+  } catch(err) {
+    alert('Fehler: Ungültiger Text. Bitte vollständig kopieren.');
+  }
+}
+
+function resetWatched() {
+  localStorage.removeItem('yt_watched');
+  renderVideos();
+  document.getElementById('diagnose-panel').style.display = 'none';
+}
+
+function showMsg(el, type, text) {
+  el.className = 'msg ' + type;
+  el.textContent = text;
+  setTimeout(() => { el.style.display = 'none'; el.className = 'msg'; }, 4000);
+}
+</script>
+</body>
+</html>
